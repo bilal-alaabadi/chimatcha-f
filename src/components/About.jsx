@@ -1,0 +1,94 @@
+// src/pages/About.jsx
+import React from 'react';
+// إن رغبت بصورة للبطاقة/الطقم ضعها هنا
+import heroImg from '../assets/WhatsApp Image 2025-10-24 at 1.18.01 AM.jpeg';
+
+const About = () => {
+  return (
+    <div dir="rtl" className="bg-white text-gray-800">
+      <section className="max-w-6xl mx-auto py-16 px-4 md:px-8">
+        <div className="flex flex-col md:flex-row-reverse items-center gap-10">
+
+          {/* الصورة (اختيارية) */}
+          <div className="md:w-1/2">
+            <img
+              src={heroImg}
+              alt="Chi Matcha - متجر الماتشا والقهوة"
+              className="w-full max-w-md mx-auto rounded-xl shadow-lg"
+            />
+          </div>
+
+          {/* النص */}
+          <div className="md:w-1/2">
+            <h2 className="text-4xl font-bold mb-4"
+                style={{ color: '#1F2C1F' }}>
+              Chi Matcha
+              <br />
+              <span className="text-xl md:text-2xl font-medium"
+                    style={{ color: '#C2C28B' }}>
+                متجر إلكتروني لعشّاق الماتشا والقهوة
+              </span>
+            </h2>
+
+            <p className="text-lg leading-loose mb-4">
+              انطلقت فكرة <span className="font-semibold" style={{ color: '#1F2C1F' }}>Chi Matcha</span>
+              من شغف يومي بالمذاقات الهادئة للماتشا ونكهات القهوة المختصّة.
+              بدأنا من متجر إلكتروني بسيط يقدّم تجربة شراء سلسة ومنتجات مختارة بعناية،
+              لنصنع لحظات دافئة لكل من يبحث عن كوب يوازن بين
+              الجودة، والراحة، والذوق.
+            </p>
+
+            <p className="leading-loose mb-4">
+              نعمل على توفير أجود أنواع الماتشا القادمة من مزارع تعتمد معايير دقيقة في الطحن
+              والحفظ، إلى جانب حبوب قهوة مختصّة مُحمّصة بعناية لتقديم طيف واسع من النكهات.
+              نهتم بالتغليف الأنيق، وسهولة الطلب، والتوصيل السريع داخل عُمان ودول الخليج.
+            </p>
+
+            <p className="leading-loose mb-4">
+              رؤيتنا أن يكون <span className="font-semibold" style={{ color: '#1F2C1F' }}>Chi Matcha</span>
+              وجهتك الأولى لكل ما يخص الماتشا والقهوة: من المشروبات الجاهزة، إلى الملحقات،
+              والوصفات البسيطة التي تلهمك لتحضير كوبك المثالي.
+            </p>
+
+            <div className="mt-6 p-5 rounded-xl border border-gray-200 bg-gradient-to-br from-white to-gray-50">
+              <h3 className="text-2xl font-semibold mb-3" style={{ color: '#1F2C1F' }}>
+                ماذا نقدّم؟
+              </h3>
+              <ul className="space-y-2 list-disc pr-5">
+                <li>مساحيق ماتشا أصلية بدرجات استخدام متعددة (لاتيه، مخبوزات، احترافي).</li>
+                <li>حبوب قهوة مختصّة بنكهات موزونة مع توصيات الطحن والاستخلاص.</li>
+                <li>أكواب وإكسسوارات تحضير أنيقة وعملية.</li>
+                <li>بوكسات جاهزة للهدايا والتجارب الموسمية.</li>
+              </ul>
+            </div>
+
+            <div className="mt-6 p-5 rounded-xl border border-gray-200">
+              <h3 className="text-2xl font-semibold mb-3" style={{ color: '#1F2C1F' }}>
+                لماذا Chi Matcha؟
+              </h3>
+              <ul className="space-y-2 list-disc pr-5">
+                <li>انتقاء صارم للمصادر مع ثبات في الجودة والطعم.</li>
+                <li>تغليف محافظ على النكهة مع تصميم يعكس روح الهدوء والبساطة.</li>
+                <li>تجربة شراء سهلة ودفع آمن وشحن سريع داخل عُمان والخليج.</li>
+                <li>دعم عملاء ودّي مع نصائح تحضير ووصفات مختصرة.</li>
+              </ul>
+            </div>
+
+            <p className="mt-8 text-lg font-medium"
+               style={{ color: '#1F2C1F' }}>
+              كوبك اليومي… لحظة توازن تبدأ من Chi Matcha 🌿☕
+            </p>
+          </div>
+        </div>
+
+        <div className="text-center mt-16">
+          <p className="text-xl font-semibold" style={{ color: '#C2C28B' }}>
+            نؤمن أن التفاصيل الصغيرة تصنع فرقًا كبيرًا في طعم يومك.
+          </p>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default About;
