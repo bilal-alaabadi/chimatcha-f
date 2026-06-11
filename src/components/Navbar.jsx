@@ -145,7 +145,6 @@ const Navbar = () => {
           className="p-2 border rounded-md text-[var(--color-primary)] hover:text-black bg-white"
         >
           <option value="عمان">عمان (ر.ع.)</option>
-          <option value="دول الخليج">دول الخليج (د.إ)</option>
         </select>
 
         <button 
@@ -247,7 +246,6 @@ const Navbar = () => {
           className="w-full p-3 text-lg border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:text-black rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent"
         >
           <option value="عمان">عمان 🇴🇲 (ر.ع.)</option>
-          <option value="دول الخليج">دول الخليج  (د.إ)</option>
         </select>
 
         <Link 

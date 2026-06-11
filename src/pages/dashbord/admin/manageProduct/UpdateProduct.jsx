@@ -9,21 +9,20 @@ import {
 
 import TextInput from '../addProduct/TextInput';
 import SelectInput from '../addProduct/SelectInput';
-// مكون رفع/إدارة الصور الخاص بالتعديل (يعرض الحالية + يضيف/يحذف)
 import UploadImage from '../manageProduct/UploadImag';
 
 const categories = [
   { label: 'الكل', value: 'الكل' },
   { label: 'الماتشا و أدواتها', value: 'الماتشا و أدواتها' },
   { label: 'القهوة و أدواتها', value: 'القهوة و أدواتها' },
-  { label: 'بكجات توفيرية', value: 'بكجات توفيرية' },
+  { label: 'بكوس توفيرية', value: 'بكوس توفيرية' },
+  { label: 'منتجات آخرى', value: 'منتجات آخرى' },
 ];
 
-const sizes = [
-  { label: 'اختر الحجم', value: '' },
-  { label: '1 كيلو', value: '1 كيلو' },
-  { label: '500 جرام', value: '500 جرام' },
-  { label: '250 جرام', value: '250 جرام' },
+const coffeeSubCategories = [
+  { label: 'المحامص السعودية', value: 'المحامص السعودية' },
+  { label: 'المحامص العمانية', value: 'المحامص العمانية' },
+  { label: 'الأدوات', value: 'الأدوات' },
 ];
 
 const UpdateProduct = () => {
@@ -41,27 +40,23 @@ const UpdateProduct = () => {
 
   const [product, setProduct] = useState({
     name: '',
+    size: '',
     category: '',
-    size: '',            // اختياري
+    subCategory: '',
     price: '',
-    oldPrice: '',
+    quantity: '',
     description: '',
-    image: [],           // روابط الصور الحالية
-    inStock: true,       // متوفر افتراضياً
+    oldPrice: '',
+    inStock: true,
+    image: [],
   });
 
-  const [showSizeField, setShowSizeField] = useState(false);
-
-  // صور جديدة (Files) مرسلة للسيرفر
   const [newImages, setNewImages] = useState([]);
-  // الصور التي سنبقيها من الصور الحالية (روابط)
   const [keepImages, setKeepImages] = useState([]);
 
-  // تحميل بيانات المنتج وتهيئتها
   useEffect(() => {
     if (!productData) return;
 
-    // بعض APIs ترجع { product, reviews }؛ نتعامل مع الحالتين
     const p = productData.product ? productData.product : productData;
 
     const currentImages = Array.isArray(p?.image)
@@ -70,90 +65,92 @@ const UpdateProduct = () => {
       ? [p.image]
       : [];
 
-    // استخرج الحجم من الاسم إن كان محفوظًا داخله بالشكل: "الاسم (الحجم)"
-    const rawName = p?.name || '';
-    const nameNoSize = rawName.replace(/\s*\([^)]*\)\s*$/g, '').trim();
-    const extractedSize =
-      p?.size ||
-      (() => {
-        const m = rawName.match(/\(([^)]*)\)\s*$/);
-        return m ? m[1] : '';
-      })();
-
     setProduct({
-      name: nameNoSize,
+      name: p?.name || '',
+      size: p?.size || '',
       category: p?.category || '',
-      size: extractedSize || '',
+      subCategory: p?.subCategory || '',
       price: p?.price != null ? String(p.price) : '',
-      oldPrice: p?.oldPrice != null ? String(p.oldPrice) : '',
+      quantity: p?.quantity != null ? String(p.quantity) : '',
       description: p?.description || '',
-      image: currentImages,
+      oldPrice: p?.oldPrice != null ? String(p.oldPrice) : '',
       inStock: typeof p?.inStock === 'boolean' ? p.inStock : true,
+      image: currentImages,
     });
 
     setKeepImages(currentImages);
-    setShowSizeField((p?.category || '') === 'حناء بودر');
   }, [productData]);
 
-  // إظهار/إخفاء اختيار الحجم بناءً على الفئة
-  useEffect(() => {
-    setShowSizeField(product.category === 'حناء بودر');
-  }, [product.category]);
-
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProduct((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+
+    if (name === 'ended' && type === 'checkbox') {
+      setProduct((prev) => ({ ...prev, inStock: !checked }));
+    } else if (name === 'category') {
+      setProduct((prev) => ({
+        ...prev,
+        category: value,
+        subCategory: value === 'القهوة و أدواتها' ? prev.subCategory : '',
+      }));
+    } else {
+      setProduct((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // تحقق الحقول الأساسية
-    const requiredFields = {
+    const required = {
       'أسم المنتج': product.name,
       'صنف المنتج': product.category,
       'السعر': product.price,
+      'الكمية': product.quantity,
       'الوصف': product.description,
+      'الصور': keepImages.length > 0 || newImages.length > 0,
     };
 
-    if (product.category === 'حناء بودر' && !product.size) {
-      alert('الرجاء اختيار الحجم لفئة الحناء البودر');
-      return;
+    if (product.category === 'القهوة و أدواتها') {
+      required['تصنيف القهوة'] = product.subCategory;
     }
 
-    const missingFields = Object.entries(requiredFields)
-      .filter(([, v]) => !v)
+    const missing = Object.entries(required)
+      .filter(([, v]) => v === '' || v === null || v === false)
       .map(([k]) => k);
 
-    if (missingFields.length) {
-      alert(`الرجاء ملء الحقول التالية: ${missingFields.join('، ')}`);
+    if (missing.length) {
+      alert(`الرجاء ملء الحقول التالية: ${missing.join('، ')}`);
       return;
     }
 
     try {
       const formData = new FormData();
-      // أرسل الاسم الأساسي فقط؛ السيرفر يبني "الاسم (الحجم)" إن وجد size
-      formData.append('name', product.name);
-      formData.append('category', product.category);
-      formData.append('price', product.price);
-      formData.append('oldPrice', product.oldPrice || '');
-      formData.append('description', product.description);
-      formData.append('size', product.size || '');            // اختياري
-      formData.append('author', user?._id || '');
-      formData.append('inStock', String(product.inStock));    // "true" | "false"
 
-      // الصور المُراد الإبقاء عليها
+      formData.append('name', product.name);
+      formData.append('size', product.size || '');
+      formData.append('category', product.category);
+      formData.append('subCategory', product.subCategory || '');
+      formData.append('price', product.price);
+      formData.append('quantity', Number(product.quantity));
+      formData.append('description', product.description);
+      formData.append('oldPrice', product.oldPrice || '');
+      formData.append(
+        'inStock',
+        String(Number(product.quantity) > 0 && product.inStock)
+      );
+      formData.append('author', user?._id || '');
+
       formData.append('keepImages', JSON.stringify(keepImages || []));
 
-      // الصور الجديدة
       if (Array.isArray(newImages) && newImages.length > 0) {
         newImages.forEach((file) => formData.append('image', file));
       }
 
       await updateProduct({ id, body: formData }).unwrap();
+
       alert('تم تحديث المنتج بنجاح');
       navigate('/dashboard/manage-products');
     } catch (error) {
+      console.error('Failed to update product', error);
       alert(
         'حدث خطأ أثناء تحديث المنتج: ' +
           (error?.data?.message || error?.message || 'خطأ غير معروف')
@@ -161,22 +158,25 @@ const UpdateProduct = () => {
     }
   };
 
-  if (isFetching) return <div className="text-center py-8">جاري تحميل بيانات المنتج...</div>;
-  if (fetchError) return <div className="text-center py-8 text-red-500">خطأ في تحميل بيانات المنتج</div>;
+  if (isFetching) {
+    return <div className="text-center py-8">جاري تحميل بيانات المنتج...</div>;
+  }
+
+  if (fetchError) {
+    return <div className="text-center py-8 text-red-500">خطأ في تحميل بيانات المنتج</div>;
+  }
 
   return (
     <div className="container mx-auto mt-8 px-4">
       <h2 className="text-2xl font-bold mb-6 text-right">تحديث المنتج</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-
         <TextInput
-          label="اسم المنتج"
+          label="أسم المنتج"
           name="name"
-          placeholder="أكتب اسم المنتج (بدون الحجم)"
+          placeholder="أكتب أسم المنتج"
           value={product.name}
           onChange={handleChange}
-          required
         />
 
         <SelectInput
@@ -185,28 +185,24 @@ const UpdateProduct = () => {
           value={product.category}
           onChange={handleChange}
           options={categories}
-          required
         />
 
-        {showSizeField && (
+        {product.category === 'القهوة و أدواتها' && (
           <SelectInput
-            label="الحجم"
-            name="size"
-            value={product.size}
+            label="تصنيف القهوة"
+            name="subCategory"
+            value={product.subCategory}
             onChange={handleChange}
-            options={sizes}
-            required={product.category === 'حناء بودر'}
+            options={coffeeSubCategories}
           />
         )}
 
         <TextInput
-          label="السعر الحالي"
-          name="price"
-          type="number"
-          placeholder="50"
-          value={product.price}
+          label="الحجم (اختياري)"
+          name="size"
+          placeholder="مثال: 250g | 12pcs | Medium"
+          value={product.size}
           onChange={handleChange}
-          required
         />
 
         <TextInput
@@ -218,62 +214,61 @@ const UpdateProduct = () => {
           onChange={handleChange}
         />
 
-        {/* إدارة الصور: يعرض الحالية + يسمح بإضافة/حذف */}
+        <TextInput
+          label="السعر"
+          name="price"
+          type="number"
+          placeholder="50"
+          value={product.price}
+          onChange={handleChange}
+        />
+
+        <TextInput
+          label="الكمية المتوفرة"
+          name="quantity"
+          type="number"
+          placeholder="مثال: 50"
+          value={product.quantity}
+          onChange={handleChange}
+        />
+
         <UploadImage
           name="image"
           id="image"
-          initialImages={product.image}   // روابط الصور الحالية
-          setImages={setNewImages}        // ملفات جديدة
-          setKeepImages={setKeepImages}   // الروابط التي ستبقى
+          initialImages={product.image}
+          setImages={setNewImages}
+          setKeepImages={setKeepImages}
         />
 
-        <div className="text-right">
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
             وصف المنتج
           </label>
+
           <textarea
             name="description"
             id="description"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+            className="add-product-InputCSS"
             value={product.description}
-            placeholder="أكتب وصف المنتج"
+            placeholder="اكتب وصف المنتج"
             onChange={handleChange}
-            required
             rows={4}
           />
         </div>
 
-        {/* حالة التوفر */}
-        <div className="flex items-center gap-6">
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="availability"
-              value="available"
-              checked={product.inStock === true}
-              onChange={() => setProduct((prev) => ({ ...prev, inStock: true }))}
-            />
-            <span>المنتج متوفر</span>
-          </label>
-
-          <label className="flex items-center gap-2">
-            <input
-              type="radio"
-              name="availability"
-              value="ended"
-              checked={product.inStock === false}
-              onChange={() => setProduct((prev) => ({ ...prev, inStock: false }))}
-            />
-            <span>انتهى المنتج</span>
-          </label>
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="ended"
+            name="ended"
+            checked={!product.inStock}
+            onChange={handleChange}
+          />
+          <label htmlFor="ended">هل انتهى المنتج؟</label>
         </div>
 
-        <div className="flex justify-end pt-4">
-          <button
-            type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-            disabled={isUpdating}
-          >
+        <div>
+          <button type="submit" className="add-product-btn" disabled={isUpdating}>
             {isUpdating ? 'جاري التحديث...' : 'حفظ التغييرات'}
           </button>
         </div>

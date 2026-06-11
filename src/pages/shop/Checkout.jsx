@@ -17,6 +17,8 @@ const Checkout = () => {
   const [wilayat, setWilayat] = useState("");
   const [description, setDescription] = useState("");
 
+  const [deliveryType, setDeliveryType] = useState("بيت");
+
   // وضع دفع المقدم (10 ر.ع) إذا كان ضمن الطلب تفصيل عباية
   const [payDeposit, setPayDeposit] = useState(false);
 
@@ -34,9 +36,10 @@ const Checkout = () => {
       // الإمارات = 4 ر.ع ، غيرها = 5 ر.ع
       return gulfCountry === "الإمارات" ? 4 : 5;
     }
-    // داخل عُمان بقيت 2 ر.ع كما كانت
-    return 2;
-  }, [country, gulfCountry]);
+
+    // داخل عُمان: البيت = 2 ر.ع ، المكتب = 1 ر.ع
+    return deliveryType === "مكتب" ? 1 : 2;
+  }, [country, gulfCountry, deliveryType]);
 
   // بعد ذلك تُعرَض بحسب العملة المختارة (قد تُحوَّل إلى AED إن كانت دول الخليج)
   const shippingFee = baseShippingFee * exchangeRate;
@@ -112,6 +115,7 @@ const Checkout = () => {
       customerPhone,
       country,       // 🔗 مرتبط مع Navbar عبر الـ Redux
       gulfCountry,   // لتحديد 4/5 ر.ع في الباك
+      deliveryType,  // بيت أو مكتب
       wilayat,
       description,
       email,
@@ -230,10 +234,24 @@ const Checkout = () => {
                     }}
                   >
                     <option value="عُمان">عُمان</option>
-                    <option value="دول الخليج">دول الخليج</option>
+                    {/* <option value="دول الخليج">دول الخليج</option> */}
                   </select>
                 </div>
               </div>
+
+              {country !== "دول الخليج" && (
+                <div>
+                  <label className="block text-gray-700 mb-2">نوع التوصيل</label>
+                  <select
+                    className="w-full p-2 border rounded-md bg-white"
+                    value={deliveryType}
+                    onChange={(e) => setDeliveryType(e.target.value)}
+                  >
+                    <option value="بيت">توصيل إلى البيت - 2 ر.ع</option>
+                    <option value="مكتب">استلام من المكتب - 1 ر.ع</option>
+                  </select>
+                </div>
+              )}
 
               {/* عند اختيار "دول الخليج" تظهر قائمة لاختيار الدولة */}
               {country === "دول الخليج" && (
@@ -380,7 +398,9 @@ const Checkout = () => {
               {/* رسوم الشحن تُخفى عند دفع المقدم */}
               {!payDepositEffective && (
                 <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                  <span className="text-gray-800">رسوم الشحن</span>
+                  <span className="text-gray-800">
+                    رسوم الشحن {country !== "دول الخليج" ? `(${deliveryType})` : ""}
+                  </span>
                   <p className="text-gray-900">
                     {currency}
                     {shippingFee.toFixed(2)}

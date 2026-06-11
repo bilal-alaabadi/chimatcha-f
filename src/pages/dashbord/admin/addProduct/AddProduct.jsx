@@ -10,19 +10,29 @@ const categories = [
   { label: 'الكل', value: 'الكل' },
   { label: 'الماتشا و أدواتها', value: 'الماتشا و أدواتها' },
   { label: 'القهوة و أدواتها', value: 'القهوة و أدواتها' },
-  { label: 'بكجات توفيرية', value: 'بكجات توفيرية' },
+  { label: 'بكوس توفيرية', value: 'بكوس توفيرية' },
+  { label: 'منتجات آخرى', value: 'منتجات آخرى' },
 ];
+
+const coffeeSubCategories = [
+  { label: 'المحامص السعودية', value: 'المحامص السعودية' },
+  { label: 'المحامص العمانية', value: 'المحامص العمانية' },
+  { label: 'الأدوات', value: 'الأدوات' },
+];
+
 const AddProduct = () => {
   const { user } = useSelector((state) => state.auth);
 
   const [product, setProduct] = useState({
     name: '',
-    size: '',            // جديد: الحجم (اختياري)
+    size: '',
     category: '',
+    subCategory: '',
     price: '',
+    quantity: '',
     description: '',
     oldPrice: '',
-    inStock: true,        // متوفر افتراضياً
+    inStock: true,
   });
 
   const [image, setImage] = useState([]);
@@ -32,8 +42,15 @@ const AddProduct = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
     if (name === 'ended' && type === 'checkbox') {
       setProduct((prev) => ({ ...prev, inStock: !checked }));
+    } else if (name === 'category') {
+      setProduct((prev) => ({
+        ...prev,
+        category: value,
+        subCategory: value === 'القهوة و أدواتها' ? prev.subCategory : '',
+      }));
     } else {
       setProduct((prev) => ({ ...prev, [name]: value }));
     }
@@ -46,12 +63,17 @@ const AddProduct = () => {
       'أسم المنتج': product.name,
       'صنف المنتج': product.category,
       'السعر': product.price,
+      'الكمية': product.quantity,
       'الوصف': product.description,
       'الصور': image.length > 0,
     };
 
+    if (product.category === 'القهوة و أدواتها') {
+      required['تصنيف القهوة'] = product.subCategory;
+    }
+
     const missing = Object.entries(required)
-      .filter(([, v]) => !v)
+      .filter(([, v]) => v === '' || v === null || v === false)
       .map(([k]) => k);
 
     if (missing.length) {
@@ -62,20 +84,26 @@ const AddProduct = () => {
     try {
       await addProduct({
         ...product,
+        quantity: Number(product.quantity),
+        inStock: Number(product.quantity) > 0 && product.inStock,
         image,
         author: user?._id,
       }).unwrap();
 
       alert('تمت أضافة المنتج بنجاح');
+
       setProduct({
         name: '',
         size: '',
         category: '',
+        subCategory: '',
         oldPrice: '',
         price: '',
+        quantity: '',
         description: '',
-        inStock: true
+        inStock: true,
       });
+
       setImage([]);
       navigate('/shop');
     } catch (err) {
@@ -87,6 +115,7 @@ const AddProduct = () => {
   return (
     <div className="container mx-auto mt-8">
       <h2 className="text-2xl font-bold mb-6">أضافة منتج جديد</h2>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <TextInput
           label="أسم المنتج"
@@ -96,8 +125,6 @@ const AddProduct = () => {
           onChange={handleChange}
         />
 
-        {/* جديد: الحجم (اختياري) */}
-
         <SelectInput
           label="صنف المنتج"
           name="category"
@@ -105,6 +132,17 @@ const AddProduct = () => {
           onChange={handleChange}
           options={categories}
         />
+
+        {product.category === 'القهوة و أدواتها' && (
+          <SelectInput
+            label="تصنيف القهوة"
+            name="subCategory"
+            value={product.subCategory}
+            onChange={handleChange}
+            options={coffeeSubCategories}
+          />
+        )}
+
         <TextInput
           label="الحجم (اختياري)"
           name="size"
@@ -131,8 +169,16 @@ const AddProduct = () => {
           onChange={handleChange}
         />
 
-        {/* هل انتهى المنتج؟ (إذا تم التأشير = لا يمكن إضافته للسلة) */}
-        <div className="flex items-center gap-2">
+        <TextInput
+          label="الكمية المتوفرة"
+          name="quantity"
+          type="number"
+          placeholder="مثال: 50"
+          value={product.quantity}
+          onChange={handleChange}
+        />
+
+        {/* <div className="flex items-center gap-2">
           <input
             type="checkbox"
             id="ended"
@@ -141,7 +187,7 @@ const AddProduct = () => {
             onChange={handleChange}
           />
           <label htmlFor="ended">هل انتهى المنتج؟</label>
-        </div>
+        </div> */}
 
         <UploadImage
           name="image"
@@ -154,6 +200,7 @@ const AddProduct = () => {
           <label htmlFor="description" className="block text-sm font-medium text-gray-700">
             وصف المنتج
           </label>
+
           <textarea
             name="description"
             id="description"

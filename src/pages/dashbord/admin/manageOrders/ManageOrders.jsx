@@ -251,110 +251,450 @@ ${linesProducts}${depositBlock}
 {/* ===== إصلاح الطباعة والـ PDF: توحيد المظهر وإجبار إظهار قسم المنتجات داخل الـ PDF حتى على الشاشات الصغيرة ===== */}
 <style>
 {`
-  @media print {
-    body * { visibility: hidden; }
-    .print-modal, .print-modal * { visibility: visible; }
+.print-price-total {
+  display: none;
+}
 
-    html, body { font-size: 11px !important; line-height: 1.2 !important; }
-    @page { size: A4; margin: 8mm; }
+.print-products-only {
+  display: none;
+}
 
-    .print-modal {
-      position: static !important;
-      left: auto !important;
-      top: auto !important;
-      width: 100% !important;
-      max-width: 100% !important;
-      height: auto !important;
-      max-height: none !important;
-      overflow: visible !important;
-      box-shadow: none !important;
-      border: none !important;
-      padding: 12px !important;
-      background: #fff !important;
-    }
-
-    .print-section { break-inside: avoid !important; page-break-inside: avoid !important; }
-    table { page-break-inside: auto; }
-    tr, td, th { break-inside: avoid !important; page-break-inside: avoid !important; }
-
-    .text-sm { font-size: 11px !important; }
-    .text-xs { font-size: 9px !important; }
-    table, th, td { font-size: 10px !important; }
-
-    .p-4 { padding: 10px !important; }
-    .p-3 { padding: 8px !important; }
-    .px-3 { padding-left: 8px !important; padding-right: 8px !important; }
-    .py-2 { padding-top: 6px !important; padding-bottom: 6px !important; }
-    .mb-6 { margin-bottom: 12px !important; }
-
-    .print-header {
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      margin-bottom: 12px !important;
-      border-bottom: 1px solid #eee !important;
-      padding-bottom: 8px !important;
-    }
-    .invoice-title { font-size: 18px !important; font-weight: bold !important; color: #333 !important; }
-    .invoice-meta { text-align: left !important; font-size: 10px !important; }
-
-    .print-modal button { display: none !important; }
-    .screen-only { display: none !important; }
+@media print {
+  @page {
+    size: 4in 6in;
+    margin: 0;
   }
 
-  /* ================= PDF MODE =================
-     html2pdf يستخدم CSS شاشة، لذلك نكرر القواعد داخل .for-pdf
-     ونضيف Override لعرض قسم "المنتجات المطلوبة" دائماً.
-  */
-  .for-pdf.print-modal, .for-pdf.print-modal * { visibility: visible !important; }
+  html,
+  body {
+    width: 4in !important;
+    height: 6in !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 
-  .for-pdf {
-    font-size: 11px !important;
-    line-height: 1.2 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-modal,
+  .print-modal * {
+    visibility: visible !important;
+  }
+
+  .print-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 4in !important;
+    height: 6in !important;
+    max-width: 4in !important;
+    max-height: 6in !important;
+    min-height: 6in !important;
+    margin: 0 auto !important;
+    padding: 2mm 2mm !important;
+    background: #fff !important;
     box-shadow: none !important;
     border: none !important;
-    padding: 12px !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+    direction: rtl !important;
+    zoom: 0.76 !important;
+  }
+
+  .print-modal button,
+  .print-modal svg,
+  .print-modal img,
+  .screen-only,
+  .print-actions {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .print-modal table,
+  .print-modal thead,
+  .print-modal tbody,
+  .print-modal tr,
+  .print-modal th,
+  .print-modal td,
+  .desktop-products,
+  .mobile-products,
+  .summary-table {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .price,
+  .total,
+  .subtotal,
+  .shipping,
+  .payment,
+  .summary-table,
+  .order-total,
+  .product-price {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .print-products-only {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+
+  .print-product-card,
+  .print-product-card * {
+    visibility: visible !important;
+  }
+
+  .print-product-card {
+    display: block !important;
+    width: 100% !important;
+    margin: 1mm auto !important;
+    padding: 1mm 0.8mm !important;
+    border: 1px solid #ddd !important;
+    border-radius: 1.5mm !important;
+    background: #fff !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .print-modal,
+  .print-modal * {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-before: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  .print-header {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    margin: 0 auto 1.5mm auto !important;
+    padding: 0 0 1mm 0 !important;
+    border-bottom: 1px solid #ddd !important;
+  }
+
+  .invoice-title {
+    font-size: 32px !important;
+    font-weight: 900 !important;
+    line-height: 1.1 !important;
+    margin: 0 0 0.8mm 0 !important;
+    text-align: center !important;
+  }
+
+  .invoice-meta {
+    text-align: center !important;
+    font-size: 21px !important;
+    line-height: 1.25 !important;
+    margin: 0 auto !important;
+  }
+
+  .invoice-meta p {
+    margin: 0.4mm 0 !important;
+  }
+
+  .print-modal h3 {
+    font-size: 23px !important;
+    font-weight: 900 !important;
+    margin: 0 0 0.8mm 0 !important;
+    padding: 0 0 0.8mm 0 !important;
+    border-bottom: 1px solid #ddd !important;
+    text-align: center !important;
+  }
+
+  .print-modal p,
+  .print-modal span,
+  .print-modal div {
+    font-size: 19px !important;
+    line-height: 1.28 !important;
+    text-align: center !important;
+  }
+
+  .print-modal strong {
+    font-size: 19px !important;
+    font-weight: 900 !important;
+  }
+
+  .print-modal .grid {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .print-modal .mb-6,
+  .print-modal .mb-4,
+  .print-modal .mb-3,
+  .print-modal .mb-2 {
+    margin-bottom: 1mm !important;
+  }
+
+  .print-modal .bg-gray-50,
+  .print-modal .bg-pink-50 {
     background: #fff !important;
   }
 
-  .for-pdf .print-section { break-inside: avoid !important; page-break-inside: avoid !important; }
-  .for-pdf table { page-break-inside: auto; }
-  .for-pdf tr, .for-pdf td, .for-pdf th { break-inside: avoid !important; page-break-inside: avoid !important; }
-
-  .for-pdf .text-sm { font-size: 11px !important; }
-  .for-pdf .text-xs { font-size: 9px !important; }
-  .for-pdf table, .for-pdf th, .for-pdf td { font-size: 10px !important; }
-
-  .for-pdf .p-4 { padding: 10px !important; }
-  .for-pdf .p-3 { padding: 8px !important; }
-  .for-pdf .px-3 { padding-left: 8px !important; padding-right: 8px !important; }
-  .for-pdf .py-2 { padding-top: 6px !important; padding-bottom: 6px !important; }
-  .for-pdf .mb-6 { margin-bottom: 12px !important; }
-
-  .for-pdf .print-header {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    margin-bottom: 12px !important;
-    border-bottom: 1px solid #eee !important;
-    padding-bottom: 8px !important;
+  .print-modal .p-4,
+  .print-modal .p-3,
+  .print-modal .p-6 {
+    padding: 0.7mm !important;
   }
-  .for-pdf .invoice-title { font-size: 18px !important; font-weight: bold !important; color: #333 !important; }
-  .for-pdf .invoice-meta { text-align: left !important; font-size: 10px !important; }
 
-  .for-pdf button, .for-pdf .screen-only { display: none !important; }
+  .print-modal .rounded-lg {
+    border-radius: 1.5mm !important;
+  }
 
-  /* 👇 أهم جزء لإظهار "المنتجات المطلوبة" داخل PDF حتى لو كان العرض Mobile:
-     عناصر الجدول لديك مخفية بـ .hidden md:block
-     هنا نجبر إظهارها داخل .for-pdf، ونخفي نسخة الموبايل لتجنّب التكرار. */
-  .for-pdf .hidden { display: block !important; }
-  .for-pdf .md\\:block { display: block !important; }
-  .for-pdf .md\\:hidden { display: none !important; }
+  .print-modal .space-y-1 > * + * {
+    margin-top: 0.3mm !important;
+  }
+
+  .print-section {
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+  }
+
+  .print-product-name {
+    font-size: 23px !important;
+    font-weight: 900 !important;
+    text-align: center !important;
+    margin: 0 0 0.5mm 0 !important;
+    line-height: 1.18 !important;
+  }
+
+  .print-product-line {
+    font-size: 20px !important;
+    line-height: 1.25 !important;
+    margin: 0.35mm 0 !important;
+    text-align: center !important;
+  }
+
+  .measurements-box {
+    width: 100% !important;
+    margin: 0.7mm auto 0 auto !important;
+    padding: 0.7mm !important;
+    background: #fafafa !important;
+    border: 1px solid #eee !important;
+    border-radius: 1.2mm !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .measurements-title {
+    margin: 0 0 0.3mm 0 !important;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+    text-align: center !important;
+  }
+
+  .measurements-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.3mm 0.5mm !important;
+    width: 100% !important;
+  }
+
+  .measurement-item {
+    font-size: 17px !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+  }
+
+  .gift-card-print {
+    width: 100% !important;
+    margin: 0.7mm auto 0 auto !important;
+    padding: 0.7mm !important;
+    border: 1px solid #f4c2d7 !important;
+    background: #fff5f8 !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  .gift-card-print,
+  .gift-card-print div {
+    font-size: 18px !important;
+    line-height: 1.25 !important;
+  }
+
+  .print-price-total {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    margin: 1mm auto 0 auto !important;
+    padding: 1mm !important;
+    border: 1px solid #ddd !important;
+    border-radius: 1.5mm !important;
+    background: #fff !important;
+    font-size: 23px !important;
+    font-weight: 900 !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* PDF MODE */
+
+.for-pdf {
+  width: 4in !important;
+  max-width: 4in !important;
+  min-height: 6in !important;
+  max-height: 6in !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 2mm 2mm !important;
+  margin: 0 auto !important;
+  background: #fff !important;
+  font-size: 18px !important;
+  line-height: 1.28 !important;
+  text-align: center !important;
+  direction: rtl !important;
+  box-sizing: border-box !important;
+}
+
+.for-pdf,
+.for-pdf * {
+  visibility: visible !important;
+  text-align: center !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+.for-pdf button,
+.for-pdf svg,
+.for-pdf img,
+.for-pdf .screen-only,
+.for-pdf .print-actions {
+  display: none !important;
+}
+
+.for-pdf table,
+.for-pdf thead,
+.for-pdf tbody,
+.for-pdf tr,
+.for-pdf th,
+.for-pdf td,
+.for-pdf .desktop-products,
+.for-pdf .mobile-products,
+.for-pdf .summary-table,
+.for-pdf .price,
+.for-pdf .total,
+.for-pdf .subtotal,
+.for-pdf .shipping,
+.for-pdf .payment,
+.for-pdf .order-total,
+.for-pdf .product-price {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+.for-pdf .print-products-only {
+  display: block !important;
+  visibility: visible !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+}
+
+.for-pdf .print-product-card {
+  display: block !important;
+  width: 100% !important;
+  margin: 1mm auto !important;
+  padding: 1mm 0.8mm !important;
+  border: 1px solid #ddd !important;
+  border-radius: 1.5mm !important;
+  background: #fff !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+}
+
+.for-pdf .print-header {
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  margin: 0 auto 1.5mm auto !important;
+  border-bottom: 1px solid #eee !important;
+  padding-bottom: 1mm !important;
+}
+
+.for-pdf .invoice-title {
+  font-size: 32px !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+}
+
+.for-pdf .invoice-meta {
+  font-size: 21px !important;
+  line-height: 1.25 !important;
+}
+
+.for-pdf h3 {
+  font-size: 23px !important;
+  font-weight: 900 !important;
+}
+
+.for-pdf p,
+.for-pdf span,
+.for-pdf div {
+  font-size: 19px !important;
+  line-height: 1.28 !important;
+}
+
+.for-pdf strong {
+  font-size: 19px !important;
+  font-weight: 900 !important;
+}
+
+.for-pdf .print-product-name {
+  font-size: 23px !important;
+  font-weight: 900 !important;
+  line-height: 1.18 !important;
+}
+
+.for-pdf .print-product-line {
+  font-size: 20px !important;
+  line-height: 1.25 !important;
+}
+
+.for-pdf .measurements-box {
+  width: 100% !important;
+  margin: 0.7mm auto 0 auto !important;
+  padding: 0.7mm !important;
+  box-sizing: border-box !important;
+}
+
+.for-pdf .measurements-title {
+  font-size: 18px !important;
+  font-weight: 900 !important;
+}
+
+.for-pdf .measurement-item {
+  font-size: 17px !important;
+  line-height: 1.25 !important;
+}
+
+.for-pdf .print-price-total {
+  display: block !important;
+  visibility: visible !important;
+  width: 100% !important;
+  margin: 1mm auto 0 auto !important;
+  padding: 1mm !important;
+  border: 1px solid #ddd !important;
+  border-radius: 1.5mm !important;
+  background: #fff !important;
+  font-size: 23px !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+}
 `}
 </style>
 

@@ -1,16 +1,40 @@
-// HeroSection.jsx
+
+// .jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import card1 from "../../assets/ChatGPT Image Oct 31, 2025, 06_22_28 PM.png";
-import card2 from "../../assets/top-view-green-matcha-still-life.jpg";
-import card3 from "../../assets/ChatGPT Image Oct 31, 2025, 06_32_40 PM.png";
-import card4 from "../../assets/dark-coffee-beans-bowl-brown-table.jpg";
-import log from "../../assets/ChatGPT Image Oct 31, 2025, 05_36_06 PM.png"; // شعار الأنثور
+
+import card1 from "../../assets/699de0b7-7732-4bac-83ad-b34fd6a53930.png";
+import card2 from "../../assets/72d3dac7-4f0f-4af2-ae8f-03966ae2d195.png";
+import card3 from "../../assets/5aec74f1-843d-4e18-8132-bf2dd34a6326.png";
+import card4 from "../../assets/93ff9db3-2e2d-45a9-8d95-63d33b10b63c.png";
+
+import log from "../../assets/ChatGPT Image Oct 31, 2025, 05_36_06 PM.png";
 
 const cards = [
-  { id: 1, image: card1, trend: ' ', title: 'الماتشا و أدواتها' },
-  { id: 2, image: card2, trend: ' ', title: 'القهوة و أدواتها' },
-  { id: 3, image: card3, trend: ' ', title: 'بكجات توفيرية' },
+  {
+    id: 1,
+    image: card1,
+    trend: ' ',
+    title: 'الماتشا و أدواتها'
+  },
+  {
+    id: 2,
+    image: card2,
+    trend: ' ',
+    title: 'القهوة و أدواتها'
+  },
+  {
+    id: 3,
+    image: card3,
+    trend: ' ',
+    title: 'بكجات توفيرية'
+  },
+  {
+    id: 4,
+    image: card4,
+    trend: ' ',
+    title: 'منتجات آخرى'
+  },
 ];
 
 // خريطة ربط عناوين الكروت مع فلاتر المتجر الموجودة
@@ -18,6 +42,7 @@ const categoryMap = {
   'الماتشا و أدواتها': 'الماتشا و أدواتها',
   'القهوة و أدواتها': 'القهوة و أدواتها',
   'بكجات توفيرية': 'بكجات توفيرية',
+  'منتجات آخرى': 'منتجات آخرى',
 };
 
 const HeroSection = () => {
